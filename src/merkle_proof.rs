@@ -49,7 +49,7 @@ impl MerkleProof {
         &self.merkle_path
     }
 
-    pub fn compile(self, mut leaves: Vec<(H256, H256)>) -> Result<CompiledMerkleProof> {
+    pub fn compile(self, mut leaves: Vec<H256>) -> Result<CompiledMerkleProof> {
         if leaves.is_empty() {
             return Err(Error::EmptyKeys);
         } else if leaves.len() != self.leaves_count() {
@@ -59,7 +59,7 @@ impl MerkleProof {
             });
         }
         // sort leaves
-        leaves.sort_unstable_by_key(|(k, _v)| *k);
+        leaves.sort_unstable();
 
         let (leaves_bitmap, merkle_path) = self.take();
 
@@ -69,9 +69,9 @@ impl MerkleProof {
         let mut leaf_index = 0;
         let mut merkle_path_index = 0;
         while leaf_index < leaves.len() {
-            let (leaf_key, _value) = leaves[leaf_index];
+            let leaf_key = leaves[leaf_index];
             let fork_height = if leaf_index + 1 < leaves.len() {
-                leaf_key.fork_height(&leaves[leaf_index + 1].0)
+                leaf_key.fork_height(&leaves[leaf_index + 1])
             } else {
                 core::u8::MAX
             };
@@ -163,7 +163,8 @@ impl MerkleProof {
     /// return EmptyProof error when proof is empty
     /// return CorruptedProof error when proof is invalid
     pub fn compute_root<H: Hasher + Default>(self, leaves: Vec<(H256, H256)>) -> Result<H256> {
-        self.compile(leaves.clone())?.compute_root::<H>(leaves)
+        self.compile(leaves.iter().map(|(k, _)| *k).collect::<_>())?
+            .compute_root::<H>(leaves)
     }
 
     /// Verify merkle proof
