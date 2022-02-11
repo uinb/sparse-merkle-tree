@@ -1,18 +1,7 @@
 use core::cmp::Ordering;
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "serde-rs")] {
-        use serde::{Deserialize, Serialize};
-    }
-}
-cfg_if::cfg_if! {
-    if #[cfg(feature = "sha256")] {
-        use generic_array::{typenum::U32, GenericArray};
-    }
-}
-
 /// Represent 256 bits
-#[cfg_attr(feature = "serde-rs", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-rs", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Eq, PartialEq, Debug, Default, Hash, Clone, Copy)]
 pub struct H256([u8; 32]);
 
@@ -123,9 +112,9 @@ impl Into<[u8; 32]> for H256 {
     }
 }
 
-#[cfg(feature = "sha256")]
+#[cfg(any(feature = "sha256", feature = "blake2b"))]
 impl From<generic_array::GenericArray<u8, generic_array::typenum::U32>> for H256 {
-    fn from(v: GenericArray<u8, U32>) -> H256 {
+    fn from(v: generic_array::GenericArray<u8, generic_array::typenum::U32>) -> H256 {
         H256(v.into())
     }
 }
