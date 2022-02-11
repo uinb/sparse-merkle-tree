@@ -2,13 +2,8 @@ use crate::{traits::Hasher, H256};
 use blake2::{Blake2b, Digest};
 use generic_array::typenum::U32;
 
+#[derive(Clone, Default)]
 pub struct Blake2bHasher(Blake2b<U32>);
-
-impl Default for Blake2bHasher {
-    fn default() -> Self {
-        Blake2bHasher(Blake2b::new())
-    }
-}
 
 impl Hasher for Blake2bHasher {
     fn write_h256(&mut self, h: &H256) {
