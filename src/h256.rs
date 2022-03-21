@@ -112,6 +112,12 @@ impl Into<[u8; 32]> for H256 {
     }
 }
 
+impl AsRef<[u8]> for H256 {
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_ref()
+    }
+}
+
 #[cfg(any(feature = "sha256", feature = "blake2b"))]
 impl From<generic_array::GenericArray<u8, generic_array::typenum::U32>> for H256 {
     fn from(v: generic_array::GenericArray<u8, generic_array::typenum::U32>) -> H256 {
